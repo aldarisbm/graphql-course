@@ -9,7 +9,8 @@ const typeDefs = `
         me: User!
         post: Post!
         greeting(name: String!, position: String!): String!
-        add(a: Float!, b: Float!): Float!
+        add(numbers: [Float!]!): Float!
+        grades: [Int!]!
     }
 
     type User {
@@ -31,13 +32,21 @@ const typeDefs = `
 const resolvers = {
     Query: {
         add(parents, args, ctx, info) {
-            return args.a + args.b
+            if (args.numbers == 0) {
+                return 0
+            } 
+            return args.numbers.reduce((acc, currentVal) => {
+                return acc + currentVal
+            })
         },
         greeting(parent, args, ctx, info) {
             if (args.name && args.position) {
                 return `Hello ${args.name}, you're my favorite ${args.position}!`
             }
             return `Hello!`  
+        },
+        grades(parent, args, ctx, info) {
+            return [99, 80, 93]
         },
         me() {
             return {
