@@ -8,6 +8,8 @@ const typeDefs = `
     type Query {
         me: User!
         post: Post!
+        greeting(name: String!, position: String!): String!
+        add(a: Float!, b: Float!): Float!
     }
 
     type User {
@@ -28,6 +30,15 @@ const typeDefs = `
 
 const resolvers = {
     Query: {
+        add(parents, args, ctx, info) {
+            return args.a + args.b
+        },
+        greeting(parent, args, ctx, info) {
+            if (args.name && args.position) {
+                return `Hello ${args.name}, you're my favorite ${args.position}!`
+            }
+            return `Hello!`  
+        },
         me() {
             return {
                 id: 123,
