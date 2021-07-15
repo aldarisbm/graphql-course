@@ -2,15 +2,33 @@ import { GraphQLServer } from 'graphql-yoga'
 
 // Scalar types - String, Boolean, Int, Float, ID
 
+// Demo user data: 
+const users = [
+    {
+        id: 131,
+        name: "Jose",
+        email: "jose@example.com"
+    },
+    {
+        id: 111,
+        name: "Dummy",
+        email: "dummy@example.com"
+    },
+    {
+        id: 333,
+        name: "notDummy",
+        email: "notdummy@example.com",
+        age: 33
+    }
+]
+
 // Type definitions (schema)
 
 const typeDefs = `
     type Query {
+        users(query: String): [User!]!
         me: User!
         post: Post!
-        greeting(name: String!, position: String!): String!
-        add(numbers: [Float!]!): Float!
-        grades: [Int!]!
     }
 
     type User {
@@ -31,23 +49,6 @@ const typeDefs = `
 
 const resolvers = {
     Query: {
-        add(parents, args, ctx, info) {
-            if (args.numbers == 0) {
-                return 0
-            } 
-            return args.numbers.reduce((acc, currentVal) => {
-                return acc + currentVal
-            })
-        },
-        greeting(parent, args, ctx, info) {
-            if (args.name && args.position) {
-                return `Hello ${args.name}, you're my favorite ${args.position}!`
-            }
-            return `Hello!`  
-        },
-        grades(parent, args, ctx, info) {
-            return [99, 80, 93]
-        },
         me() {
             return {
                 id: 123,
@@ -62,6 +63,15 @@ const resolvers = {
                 body: "I love working on GraphQL",
                 published: false
             }
+        },
+        users(parent, args, ctx, info) {
+            if (!args.query) {
+                return users
+            }
+
+            return users.filter((user) => {
+                return user.name.toLowerCase().includes(args.query.toLowerCase())
+            })
         }
     } 
 }
