@@ -22,11 +22,34 @@ const users = [
     }
 ]
 
+const posts = [
+    {
+        id: 321,
+        title: "GraphQL rocks",
+        body: "I love working on GraphQL",
+        published: true
+    },
+    {
+        id: 111,
+        title: "GraphQ sucks",
+        body: "I'm not sure I really like it",
+        published: false
+    },
+    {
+        id: 123,
+        title: "NodeJS rocks",
+        body: "NodeJS is so easy to use",
+        published: false
+    }
+]
+
 // Type definitions (schema)
 
 const typeDefs = `
     type Query {
         users(query: String): [User!]!
+        posts(query: String): [Post!]!
+        publishedSetting(query: Boolean!): [Post!]!
         me: User!
         post: Post!
     }
@@ -64,6 +87,11 @@ const resolvers = {
                 published: false
             }
         },
+        publishedSetting(parent, args, ctx, info ) {
+            return posts.filter((post) => {
+                return post.published  == args.query
+            })
+        },
         users(parent, args, ctx, info) {
             if (!args.query) {
                 return users
@@ -71,6 +99,15 @@ const resolvers = {
 
             return users.filter((user) => {
                 return user.name.toLowerCase().includes(args.query.toLowerCase())
+            })
+        },
+        posts(parent, args, ctx, info) {
+            if (!args.query) {
+                return posts
+            }
+
+            return posts.filter((post) => {
+                return post.title.toLowerCase().includes(args.query.toLowerCase()) || post.body.toLocaleLowerCase().includes(args.query.toLowerCase())
             })
         }
     } 
