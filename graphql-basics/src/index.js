@@ -27,19 +27,41 @@ const posts = [
         id: 321,
         title: "GraphQL rocks",
         body: "I love working on GraphQL",
-        published: true
+        published: true,
+        author: 111
     },
     {
         id: 111,
         title: "GraphQ sucks",
         body: "I'm not sure I really like it",
-        published: false
+        published: false,
+        author: 111
     },
     {
         id: 123,
         title: "NodeJS rocks",
         body: "NodeJS is so easy to use",
-        published: false
+        published: false,
+        author: 333
+    }
+]
+
+const comments = [
+    {
+        id: 11,
+        text: "Cool Post!"
+    },
+    {
+        id: 22,
+        text: "Boohoo"
+    },
+    {
+        id: 33,
+        text: "Ayooo"
+    },
+    {
+        id: 44,
+        text: "This right here"
     }
 ]
 
@@ -49,6 +71,7 @@ const typeDefs = `
     type Query {
         users(query: String): [User!]!
         posts(query: String): [Post!]!
+        comments: [Comment!]!
         publishedSetting(query: Boolean!): [Post!]!
         me: User!
         post: Post!
@@ -59,6 +82,7 @@ const typeDefs = `
         name: String!
         email: String!
         age: Int
+        posts: [Post!]!
     }
     
     type Post {
@@ -66,6 +90,12 @@ const typeDefs = `
         title: String!
         body: String!
         published: Boolean!
+        author: User!
+    }
+
+    type Comment {
+        id: ID!
+        text: String!
     }
 `
 // Resolvers
@@ -89,7 +119,7 @@ const resolvers = {
         },
         publishedSetting(parent, args, ctx, info ) {
             return posts.filter((post) => {
-                return post.published  == args.query
+                return post.published == args.query
             })
         },
         users(parent, args, ctx, info) {
@@ -109,8 +139,25 @@ const resolvers = {
             return posts.filter((post) => {
                 return post.title.toLowerCase().includes(args.query.toLowerCase()) || post.body.toLocaleLowerCase().includes(args.query.toLowerCase())
             })
+        },
+        comments(parents, args, ctx, info) {
+            return comments
         }
-    } 
+    },
+    Post: {
+        author(parent, args, ctx, info) {
+            return users.find((user) => {
+                return user.id == parent.author
+            })
+        }
+    },
+    User: {
+        posts(parent, args, ctx, info) {
+            return posts.filter((post) => {
+                return post.author == parent.id
+            })
+        }
+    }
 }
 
 const server = new GraphQLServer({
